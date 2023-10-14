@@ -1,20 +1,21 @@
 import bsh.EvalError;
 import bsh.Interpreter;
+import bsh.InterpreterError;
 
 import java.util.*;
 
 public class BoolOperator {
-    String stringInput, expression;
-    int numberOfVars, rows = 1;
-    int[][] table;
+    private String stringInput, expression;
+    private int numberOfVars, rows = 1;
+    private int[][] table;
     private final List<List<Integer>> abbrDNF = new ArrayList<>();
     private List<List<List<Integer>>> tupicDNF = new ArrayList<>();
-    public BoolOperator(String str) {
+    public BoolOperator(String str){
         this.stringInput = str;
         this.counterParameters();
         this.createTable();
-        this.defaultFiller();
         this.converter();
+        this.inputStringIsCorrect();
         this.fillTableF();
         this.fillListSDNF();
         this.abbreviatedDNF();
@@ -28,8 +29,6 @@ public class BoolOperator {
     }
     private void createTable() {
         this.table = new int[rows][numberOfVars + 1];
-    }
-    private void defaultFiller() {
         int x = rows, col = 0;
         while (x != 1) {
             x /= 2;
@@ -39,19 +38,39 @@ public class BoolOperator {
                 table[i][col] = res ? 1 : 0;
             }
             col += 1;
-
-
         }
     }
-
     private void converter() {
         String expression = "if (";
+        stringInput = stringInput.toLowerCase();
+        stringInput = stringInput.replace("&&", "&");
+        stringInput = stringInput.replace("&", "&&");
+        stringInput = stringInput.replace("||", "|");
+        stringInput = stringInput.replace("|", "||");
 //        for (int i = 0; i < stringLine.length(); i++) {
 //
 //        }
         expression += stringInput;
         expression += ") res = 1;";
         this.expression = expression;
+    }
+    private void inputStringIsCorrect() throws InvalidInputStringException{
+        Interpreter inter = new Interpreter();
+        boolean res = true;
+        for (int j = 1; j <= numberOfVars; ++j) {
+            try {
+                inter.set("x" + j, false);
+            } catch (EvalError ex) {
+                res = false;
+            }
+        }
+        try {
+            inter.set("res", 0);
+            inter.eval(expression);
+        } catch (EvalError | InterpreterError ex) {
+            res = false;
+        }
+        if (!res) throw new InvalidInputStringException("The entered string is incorrect");
     }
     private void fillTableF() {
         for (int i = 0; i < table.length; ++i) {
@@ -84,8 +103,14 @@ public class BoolOperator {
     }
     public void table() {
         for (int i = 0; i < numberOfVars; ++i) System.out.print("x" + (i + 1) + " ");
-        System.out.print(" F\n");
-        for (int[] ints : table) System.out.println(Arrays.toString(ints));
+        System.out.print("| F\n");
+        for (int[] ints : table) {
+            for (int i = 0; i < ints.length; ++i) {
+                if (i == ints.length-1) {
+                    System.out.println("| " + ints[i]);
+                } else System.out.print(ints[i] + "  ");
+            }
+        }
     }
     public void scnf() {
         char neg = '¬';
@@ -151,6 +176,9 @@ public class BoolOperator {
             for (int var : removable) clone.remove(var);
             abbrDNF.clear();
             abbrDNF.addAll(clone);
+            Set<List<Integer>> setClone = new HashSet<>(abbrDNF);
+            abbrDNF.clear();
+            abbrDNF.addAll(setClone);
             counter = count;
         }
         while (counter != 0);
@@ -162,12 +190,12 @@ public class BoolOperator {
                 Integer el = conjunction.get(j);
                 if (el != -1) System.out.print((el == 1 ? "x" + (j + 1) : "¬x" + (j + 1)) + " ∧ ");
             }
-            System.out.print("\b\b\b) ");
+            System.out.print("\b\b\b)∨");
 
         }
-        System.out.println();
+        System.out.println("\b");
     }
-    public List<List<Integer>> quineTable() {
+    private List<List<Integer>> engineQuineTable() {
         List<List<Integer>> qTable = new ArrayList<>();
         for (int i = 0; i < abbrDNF.size(); ++i) {
             qTable.add(new ArrayList<>());
@@ -183,6 +211,39 @@ public class BoolOperator {
             }
         }
         return qTable;
+    }
+    public void quineTable(){
+        List<List<Integer>> qTable = new ArrayList<>(engineQuineTable());
+        for (int i=0; i < abbrDNF.get(0).size() * 3; ++i) System.out.print(" ");
+        for (int[] row : table) {
+            if (row[row.length-1] == 1) {
+                for (int j = 0; j < row.length - 1; ++j) System.out.print(row[j]);
+                System.out.print(" ");
+            }
+
+        }
+        System.out.println();
+        for (int j = 0; j < abbrDNF.size(); ++j) {
+            int counter = 0;
+            for (int k = 0; k < abbrDNF.get(j).size(); ++k) {
+                if (abbrDNF.get(j).get(k) != -1) {
+                    if (abbrDNF.get(j).get(k) == 1) {
+                        System.out.print("x" + (k + 1));
+                        counter += 2;
+
+                    } else {
+                        System.out.print("¬x" + (k + 1));
+                        counter += 3;
+                    }
+                }
+            }
+            for (int i = counter; i < abbrDNF.get(0).size() * 3; ++i ) System.out.print(" ");
+            for (int i = 0; i < qTable.get(0).size(); ++i) {
+                System.out.print("  " + qTable.get(j).get(i) + "  ");
+
+            }
+            System.out.println();
+        }
     }
     @SuppressWarnings("SuspiciousListRemoveInLoop")
     private void engineOfTupicDNF() {
@@ -255,9 +316,9 @@ public class BoolOperator {
                 for (int i = 0; i < conjunction.size(); ++i) {
                     if (conjunction.get(i) != -1) System.out.print((conjunction.get(i)==1? "x" + (i+1) : "¬x" + (i+1)) + " ∧ ");
                 }
-                System.out.print("\b\b\b)");
+                System.out.print("\b\b\b)∨");
             }
-            System.out.println();
+            System.out.println("\b");
         }
     }
 }
