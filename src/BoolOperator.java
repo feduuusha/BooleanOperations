@@ -10,7 +10,9 @@ public class BoolOperator {
     private int[][] table;
     private final List<List<Integer>> abbrDNF = new ArrayList<>();
     private List<List<List<Integer>>> tupicDNF = new ArrayList<>();
-    public BoolOperator(String str){
+    private final List<List<List<Integer>>> minimumDNF = new ArrayList<>();
+
+    public BoolOperator(String str) {
         this.stringInput = str;
         this.counterParameters();
         this.createTable();
@@ -20,13 +22,16 @@ public class BoolOperator {
         this.fillListSDNF();
         this.abbreviatedDNF();
         this.engineOfTupicDNF();
+        this.engineOfMinimalDNF();
     }
+
     private void counterParameters() {
         int counter = 0;
         while (stringInput.contains("x" + (counter + 1))) ++counter;
         this.numberOfVars = counter;
         for (int i = 0; i < numberOfVars; ++i) this.rows *= 2;
     }
+
     private void createTable() {
         this.table = new int[rows][numberOfVars + 1];
         int x = rows, col = 0;
@@ -40,6 +45,7 @@ public class BoolOperator {
             col += 1;
         }
     }
+
     private void converter() {
         String expression = "if (";
         stringInput = stringInput.toLowerCase();
@@ -47,14 +53,12 @@ public class BoolOperator {
         stringInput = stringInput.replace("&", "&&");
         stringInput = stringInput.replace("||", "|");
         stringInput = stringInput.replace("|", "||");
-//        for (int i = 0; i < stringLine.length(); i++) {
-//
-//        }
         expression += stringInput;
         expression += ") res = 1;";
         this.expression = expression;
     }
-    private void inputStringIsCorrect() throws InvalidInputStringException{
+
+    private void inputStringIsCorrect() throws InvalidInputStringException {
         Interpreter inter = new Interpreter();
         boolean res = true;
         for (int j = 1; j <= numberOfVars; ++j) {
@@ -72,6 +76,7 @@ public class BoolOperator {
         }
         if (!res) throw new InvalidInputStringException("The entered string is incorrect");
     }
+
     private void fillTableF() {
         for (int i = 0; i < table.length; ++i) {
             Interpreter inter = new Interpreter();
@@ -91,6 +96,7 @@ public class BoolOperator {
             }
         }
     }
+
     private void fillListSDNF() {
         for (int[] row : table) {
             if (row[row.length - 1] == 1) {
@@ -101,45 +107,53 @@ public class BoolOperator {
             }
         }
     }
+
     public void table() {
-        for (int i = 0; i < numberOfVars; ++i) System.out.print("x" + (i + 1) + " ");
-        System.out.print("| F\n");
+        StringBuilder output = new StringBuilder();
+        for (int i = 0; i < numberOfVars; ++i) output.append("x").append(i + 1).append(" ");
+        output.append("| F\n");
         for (int[] ints : table) {
             for (int i = 0; i < ints.length; ++i) {
-                if (i == ints.length-1) {
-                    System.out.println("| " + ints[i]);
-                } else System.out.print(ints[i] + "  ");
+                if (i == ints.length - 1) {
+                    output.append("| ").append(ints[i]).append("\n");
+                } else output.append(ints[i]).append("  ");
             }
         }
+        System.out.print(output);
     }
+
     public void scnf() {
-        char neg = '¬';
+        StringBuilder output = new StringBuilder();
         for (int[] variable : table) {
             if (variable[variable.length - 1] == 0) {
-                System.out.print("(");
+                output.append("(");
                 for (int j = 0; j < variable.length - 1; ++j) {
                     boolean item = variable[j] == 1;
-                    System.out.print((item ? neg + "x" + (j + 1) : "x" + (j + 1)) + " ∧ ");
+                    output.append(item ? "¬" + "x" + (j + 1) : "x" + (j + 1)).append(" ∧ ");
                 }
-                System.out.print("\b\b\b)∨");
+                output.append("\b\b\b)∨");
             }
         }
-        System.out.println("\b");
+        output.append("\b\n");
+        System.out.print(output);
     }
+
     public void sdnf() {
-        char neg = '¬';
+        StringBuilder output = new StringBuilder();
         for (int[] variable : table) {
             if (variable[variable.length - 1] == 1) {
-                System.out.print("(");
+                output.append("(");
                 for (int j = 0; j < variable.length - 1; ++j) {
                     boolean item = variable[j] == 1;
-                    System.out.print((item ? "x" + (j + 1) : neg + "x" + (j + 1)) + " ∨ ");
+                    output.append(item ? "x" + (j + 1) : "¬" + "x" + (j + 1)).append(" ∨ ");
                 }
-                System.out.print("\b\b\b)∧");
+                output.append("\b\b\b)∧");
             }
         }
-        System.out.println("\b");
+        output.append("\b\n");
+        System.out.print(output);
     }
+
     private void abbreviatedDNF() {
         int counter;
         do {
@@ -183,27 +197,31 @@ public class BoolOperator {
         }
         while (counter != 0);
     }
+
     public void abbrDNF() {
+        StringBuilder output = new StringBuilder();
         for (List<Integer> conjunction : abbrDNF) {
-            System.out.print("(");
+            output.append("(");
             for (int j = 0; j < conjunction.size(); ++j) {
                 Integer el = conjunction.get(j);
-                if (el != -1) System.out.print((el == 1 ? "x" + (j + 1) : "¬x" + (j + 1)) + " ∧ ");
+                if (el != -1) output.append(el == 1 ? "x" + (j + 1) : "¬x" + (j + 1)).append(" ∧ ");
             }
-            System.out.print("\b\b\b)∨");
+            output.append("\b\b\b)∨");
 
         }
-        System.out.println("\b");
+        output.append("\b\n");
+        System.out.print(output);
     }
+
     private List<List<Integer>> engineQuineTable() {
         List<List<Integer>> qTable = new ArrayList<>();
         for (int i = 0; i < abbrDNF.size(); ++i) {
             qTable.add(new ArrayList<>());
             for (int[] row : table) {
                 int res = 1;
-                if (row[row.length-1] == 1) {
-                    for (int k = 0; k < row.length-1; ++k)
-                        if(!abbrDNF.get(i).get(k).equals(-1)) {
+                if (row[row.length - 1] == 1) {
+                    for (int k = 0; k < row.length - 1; ++k)
+                        if (!abbrDNF.get(i).get(k).equals(-1)) {
                             if (!abbrDNF.get(i).get(k).equals(row[k])) res *= 0;
                         }
                     qTable.get(i).add(res);
@@ -212,39 +230,43 @@ public class BoolOperator {
         }
         return qTable;
     }
-    public void quineTable(){
+
+    public void quineTable() {
+        StringBuilder output = new StringBuilder();
         List<List<Integer>> qTable = new ArrayList<>(engineQuineTable());
-        for (int i=0; i < abbrDNF.get(0).size() * 3; ++i) System.out.print(" ");
+        for (int i = 0; i < abbrDNF.get(0).size() * 3; ++i) output.append(" ");
         for (int[] row : table) {
-            if (row[row.length-1] == 1) {
-                for (int j = 0; j < row.length - 1; ++j) System.out.print(row[j]);
-                System.out.print(" ");
+            if (row[row.length - 1] == 1) {
+                for (int j = 0; j < row.length - 1; ++j) output.append(row[j]);
+                output.append(" ");
             }
 
         }
-        System.out.println();
+        output.append("\n");
         for (int j = 0; j < abbrDNF.size(); ++j) {
             int counter = 0;
             for (int k = 0; k < abbrDNF.get(j).size(); ++k) {
                 if (abbrDNF.get(j).get(k) != -1) {
                     if (abbrDNF.get(j).get(k) == 1) {
-                        System.out.print("x" + (k + 1));
+                        output.append("x").append(k + 1);
                         counter += 2;
 
                     } else {
-                        System.out.print("¬x" + (k + 1));
+                        output.append("¬x").append(k + 1);
                         counter += 3;
                     }
                 }
             }
-            for (int i = counter; i < abbrDNF.get(0).size() * 3; ++i ) System.out.print(" ");
+            for (int i = counter; i < abbrDNF.get(0).size() * 3; ++i) output.append(" ");
             for (int i = 0; i < qTable.get(0).size(); ++i) {
-                System.out.print("  " + qTable.get(j).get(i) + "  ");
+                output.append("  ").append(qTable.get(j).get(i)).append("  ");
 
             }
-            System.out.println();
+            output.append("\n");
         }
+        System.out.print(output);
     }
+
     @SuppressWarnings("SuspiciousListRemoveInLoop")
     private void engineOfTupicDNF() {
         List<List<List<Integer>>> tupic = new ArrayList<>();
@@ -262,10 +284,11 @@ public class BoolOperator {
         tupic = cleaner(tupic);
         this.tupicDNF = tupic;
     }
+
     private boolean checker(List<List<Integer>> list) {
         int res = 1;
         for (int[] row : table) {
-            if (row[row.length-1] == 1) {
+            if (row[row.length - 1] == 1) {
                 int result = 0;
                 for (List<Integer> integers : list) {
                     int res1 = 1;
@@ -276,16 +299,17 @@ public class BoolOperator {
                     }
                     if (res1 != 0) ++result;
                 }
-                result = result > 0? 1 : 0;
+                result = result > 0 ? 1 : 0;
                 res *= result;
             }
         }
-        return res==1;
+        return res == 1;
     }
+
     private List<List<List<Integer>>> cleaner(List<List<List<Integer>>> list) {
         List<List<List<Integer>>> copy = new ArrayList<>(list);
         List<Integer> removable = new ArrayList<>();
-        for (int i = list.size()-1; i > 0; --i) {
+        for (int i = list.size() - 1; i > 0; --i) {
             for (int j = 0; j < i; j++) {
                 List<List<Integer>> lst1 = new ArrayList<>(list.get(i));
                 List<List<Integer>> lst2 = new ArrayList<>(list.get(j));
@@ -309,16 +333,55 @@ public class BoolOperator {
         for (Integer index : removable) copy.remove((int) index);
         return copy;
     }
+
     public void tupicDNF() {
+        StringBuilder output = new StringBuilder();
         for (List<List<Integer>> dnf : tupicDNF) {
-            for (List<Integer> conjunction : dnf ) {
-                System.out.print("(");
+            for (List<Integer> conjunction : dnf) {
+                output.append("(");
                 for (int i = 0; i < conjunction.size(); ++i) {
-                    if (conjunction.get(i) != -1) System.out.print((conjunction.get(i)==1? "x" + (i+1) : "¬x" + (i+1)) + " ∧ ");
+                    if (conjunction.get(i) != -1)
+                        output.append(conjunction.get(i) == 1 ? "x" + (i + 1) : "¬x" + (i + 1)).append(" ∧ ");
                 }
-                System.out.print("\b\b\b)∨");
+                output.append("\b\b\b)∨");
             }
-            System.out.println("\b");
+            output.append("\b\n");
         }
+        System.out.print(output);
+    }
+    private void engineOfMinimalDNF() {
+        int minimum = 1000000000;
+        for (List<List<Integer>> dnf : tupicDNF) {
+            int counter = 0;
+            for (List<Integer> conjunction : dnf) {
+                for (Integer literal : conjunction) {
+                    if (literal != -1) ++counter;
+                }
+            }
+            if (counter < minimum) minimum = counter;
+        }
+        for (List<List<Integer>> dnf : tupicDNF) {
+            int counter = 0;
+            for (List<Integer> conjunction : dnf) {
+                for (Integer literal : conjunction) {
+                    if (literal != -1) ++counter;
+                }
+            }
+            if (counter == minimum) minimumDNF.add(dnf);
+        }
+    }
+    public void minimumDNF() {
+        StringBuilder output = new StringBuilder();
+        for (List<List<Integer>> dnf : minimumDNF) {
+            for (List<Integer> conjunction : dnf) {
+                output.append("(");
+                for (int i = 0; i < conjunction.size(); ++i) {
+                    if (conjunction.get(i) != -1) output.append((conjunction.get(i) == 1? "x" + (i+1): "¬x" + (i+1))).append(" ∧ ");
+                }
+                output.append("\b\b\b)");
+            }
+            output.append("\n");
+        }
+        System.out.print(output);
     }
 }

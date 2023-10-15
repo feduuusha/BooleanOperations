@@ -10,7 +10,9 @@ public class Main {
         gen.abbrDNF();
         System.out.println("Тупиковые ДНФ:");
         gen.tupicDNF();
-        System.out.println("Таблица Квайна");
+        System.out.println("Таблица Квайна:");
         gen.quineTable();
+        System.out.println("Минимальные ДНФ:");
+        gen.minimumDNF();
     }
 }
