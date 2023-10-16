@@ -1,6 +1,8 @@
 public class Main {
     public static void main(String[] args) {
-        BoolOperator gen = new BoolOperator("(!X1 & !X2 & !x3 & !x4) || (!x1 & !x2 & !x3 & x4) || (!x1 & !x2 & x3 & !x4) || (!x1 & !x2 & x3 & x4) || (!x1 & x2 & !x3 && !x4) || (x1 & !x2 & !x3 & x4) || (x1 & x2 & !x3 & !x4) || (x1 & x2 & !x3 & x4)");
+        BoolOperator gen = new BoolOperator("0010 1011 1101 1111");
+        BoolOperator gen1 = new BoolOperator("(!X1 & !X2 & !x3 & !x4) || (!x1 & !x2 & !x3 & x4) || (!x1 & !x2 & x3 & !x4) || (!x1 & !x2 & x3 & x4) || (!x1 & x2 & !x3 && !x4) || (x1 & !x2 & !x3 & x4) || (x1 & x2 & !x3 & !x4) || (x1 & x2 & !x3 & x4)");
+        gen1.table();
         gen.table();
         System.out.println("СКНФ:");
         gen.scnf();

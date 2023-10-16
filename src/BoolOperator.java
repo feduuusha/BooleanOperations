@@ -14,15 +14,42 @@ public class BoolOperator {
 
     public BoolOperator(String str) {
         this.stringInput = str;
-        this.counterParameters();
-        this.createTable();
-        this.converter();
-        this.inputStringIsCorrect();
-        this.fillTableF();
+        if (inputStringRecognition()) {
+            this.createTable();
+            this.fillTableFByInt();
+        } else {
+            this.counterParameters();
+            this.createTable();
+            this.converter();
+            this.inputStringIsCorrect();
+            this.fillTableF();
+        }
         this.fillListSDNF();
         this.abbreviatedDNF();
         this.engineOfTupicDNF();
         this.engineOfMinimalDNF();
+    }
+
+    private boolean inputStringRecognition() {
+        int counter = 0;
+        stringInput = stringInput.replace(" ", "");
+        for (int i = 0; i < stringInput.length(); ++i) {
+            if (stringInput.charAt(i) == '0' || stringInput.charAt(i) == '1') {
+                counter += 1;
+            } else {
+                return false;
+            }
+        }
+        double len = counter;
+        counter = 0;
+        while (len != 1.0) {
+            counter += 1;
+            len /= 2;
+            if (len < 1.0) throw new InvalidInputStringException("The entered string is incorrect");
+        }
+        this.numberOfVars = counter;
+        for (int i = 0; i < numberOfVars; ++i) this.rows *= 2;
+        return true;
     }
 
     private void counterParameters() {
@@ -94,6 +121,12 @@ public class BoolOperator {
             } catch (EvalError ex) {
                 System.out.println(ex.getMessage());
             }
+        }
+    }
+
+    private void fillTableFByInt() {
+        for (int i = 0; i < stringInput.length(); ++i) {
+            table[i][numberOfVars] = Integer.parseInt(String.valueOf(stringInput.charAt(i)));
         }
     }
 
