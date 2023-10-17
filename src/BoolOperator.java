@@ -162,9 +162,9 @@ public class BoolOperator {
                 output.append("(");
                 for (int j = 0; j < variable.length - 1; ++j) {
                     boolean item = variable[j] == 1;
-                    output.append(item ? "¬" + "x" + (j + 1) : "x" + (j + 1)).append(" ∧ ");
+                    output.append(item ? "¬" + "x" + (j + 1) : "x" + (j + 1)).append(" ∨ ");
                 }
-                output.append("\b\b\b)∨");
+                output.append("\b\b\b)∧");
             }
         }
         output.append("\b\n");
@@ -178,9 +178,9 @@ public class BoolOperator {
                 output.append("(");
                 for (int j = 0; j < variable.length - 1; ++j) {
                     boolean item = variable[j] == 1;
-                    output.append(item ? "x" + (j + 1) : "¬" + "x" + (j + 1)).append(" ∨ ");
+                    output.append(item ? "x" + (j + 1) : "¬" + "x" + (j + 1)).append(" ∧ ");
                 }
-                output.append("\b\b\b)∧");
+                output.append("\b\b\b)∨");
             }
         }
         output.append("\b\n");
