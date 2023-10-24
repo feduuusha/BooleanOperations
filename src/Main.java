@@ -1,6 +1,6 @@
 public class Main {
     public static void main(String[] args) {
-        BoolOperator gen = new BoolOperator("0010 1011 1101 1111");
+        BoolOperator gen = new BoolOperator("1010 1010 1011 0110");
         BoolOperator gen1 = new BoolOperator("(!X1 & !X2 & !x3 & !x4) || (!x1 & !x2 & !x3 & x4) || (!x1 & !x2 & x3 & !x4) || (!x1 & !x2 & x3 & x4) || (!x1 & x2 & !x3 && !x4) || (x1 & !x2 & !x3 & x4) || (x1 & x2 & !x3 & !x4) || (x1 & x2 & !x3 & x4)");
         gen1.table();
         gen.table();
@@ -16,5 +16,8 @@ public class Main {
         gen.quineTable();
         System.out.println("Минимальные ДНФ:");
         gen.minimumDNF();
+        System.out.println("Полином Жегалкина:");
+        gen.polynomial();
+        gen1.polynomial();
     }
 }
