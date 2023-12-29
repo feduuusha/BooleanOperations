@@ -1,4 +1,4 @@
-public class InvalidInputStringException extends RuntimeException {
+public class InvalidInputStringException extends Exception {
     public InvalidInputStringException(String message) {
         super(message);
     }

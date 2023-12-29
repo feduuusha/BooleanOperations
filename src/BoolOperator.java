@@ -6,21 +6,22 @@ import java.util.*;
 
 public class BoolOperator {
     private String stringInput, expression;
-    private int numberOfVars, rows = 1;
+    private int numberOfVars;
+    private int rows = 1;
     private int[][] table;
     private final List<List<Integer>> abbrDNF = new ArrayList<>();
     private List<List<List<Integer>>> tupicDNF = new ArrayList<>();
     private final List<List<List<Integer>>> minimumDNF = new ArrayList<>();
 
-    public BoolOperator(String str) {
+    public BoolOperator(String str) throws InvalidInputStringException {
         this.stringInput = str;
         if (inputStringRecognition()) {
             this.createTable();
             this.fillTableFByInt();
         } else {
+            this.converter();
             this.counterParameters();
             this.createTable();
-            this.converter();
             this.inputStringIsCorrect();
             this.fillTableF();
         }
@@ -30,7 +31,7 @@ public class BoolOperator {
         this.engineOfMinimalDNF();
     }
 
-    private boolean inputStringRecognition() {
+    private boolean inputStringRecognition() throws InvalidInputStringException {
         int counter = 0;
         stringInput = stringInput.replace(" ", "");
         for (int i = 0; i < stringInput.length(); ++i) {
@@ -167,7 +168,7 @@ public class BoolOperator {
                 output.append("\b\b\b)∧");
             }
         }
-        output.append("\b\n");
+        output.append("\b \b\n");
         System.out.print(output);
     }
 
@@ -183,7 +184,7 @@ public class BoolOperator {
                 output.append("\b\b\b)∨");
             }
         }
-        output.append("\b\n");
+        output.append("\b \b\n");
         System.out.print(output);
     }
 
@@ -242,7 +243,7 @@ public class BoolOperator {
             output.append("\b\b\b)∨");
 
         }
-        output.append("\b\n");
+        output.append("\b \b\n");
         System.out.print(output);
     }
 
@@ -271,7 +272,7 @@ public class BoolOperator {
         for (int[] row : table) {
             if (row[row.length - 1] == 1) {
                 for (int j = 0; j < row.length - 1; ++j) output.append(row[j]);
-                output.append(" ");
+                output.append("  ");
             }
 
         }
@@ -292,7 +293,8 @@ public class BoolOperator {
             }
             for (int i = counter; i < abbrDNF.get(0).size() * 3; ++i) output.append(" ");
             for (int i = 0; i < qTable.get(0).size(); ++i) {
-                output.append("  ").append(qTable.get(j).get(i)).append("  ");
+                for (int k = 0; k < numberOfVars - 1; ++k) output.append(" ");
+                output.append(qTable.get(j).get(i)).append("  ");
 
             }
             output.append("\n");
@@ -378,10 +380,11 @@ public class BoolOperator {
                 }
                 output.append("\b\b\b)∨");
             }
-            output.append("\b\n");
+            output.append("\b \b\n");
         }
         System.out.print(output);
     }
+
     private void engineOfMinimalDNF() {
         int minimum = 1000000000;
         for (List<List<Integer>> dnf : tupicDNF) {
@@ -403,43 +406,44 @@ public class BoolOperator {
             if (counter == minimum) minimumDNF.add(dnf);
         }
     }
+
     public void minimumDNF() {
         StringBuilder output = new StringBuilder();
         for (List<List<Integer>> dnf : minimumDNF) {
             for (List<Integer> conjunction : dnf) {
                 output.append("(");
                 for (int i = 0; i < conjunction.size(); ++i) {
-                    if (conjunction.get(i) != -1) output.append((conjunction.get(i) == 1? "x" + (i+1): "¬x" + (i+1))).append(" ∧ ");
+                    if (conjunction.get(i) != -1)
+                        output.append((conjunction.get(i) == 1 ? "x" + (i + 1) : "¬x" + (i + 1))).append(" ∧ ");
                 }
-                output.append("\b\b\b)");
+                output.append("\b\b\b)∨");
             }
-            output.append("\n");
+            output.append("\b \b\n");
         }
         System.out.print(output);
     }
 
     public void polynomial() {
         List<List<Integer>> entry = new ArrayList<>();
-        for (int i = 0; i < table.length; ++i) entry.add(List.of(table[i][numberOfVars]));
+        for (int[] ints : table) entry.add(List.of(ints[numberOfVars]));
         while (entry.size() != 1) {
             List<List<Integer>> clone = new ArrayList<>();
-            for (int i = 0; i < entry.size() - 1; i+=2) {
-                clone.add(step(entry.get(i), entry.get(i+1)));
+            for (int i = 0; i < entry.size() - 1; i += 2) {
+                clone.add(step(entry.get(i), entry.get(i + 1)));
             }
             entry = clone;
         }
         List<Integer> result = entry.get(0);
         for (int i = table.length - 1; i > 0; --i) {
             if (result.get(i) == 1) {
-                for (int j = 0; j < table[i].length -1; ++j) {
-                    if (table[i][j] == 1) System.out.print("x" + (j+1));
+                for (int j = 0; j < table[i].length - 1; ++j) {
+                    if (table[i][j] == 1) System.out.print("x" + (j + 1));
                 }
                 System.out.print(" ⊕ ");
             }
         }
-
         if (result.get(0) == 1) System.out.println(1);
-        else System.out.println("\b\b\b");
+        else System.out.println("\b\b\b  \b");
     }
 
     private List<Integer> step(List<Integer> arr1, List<Integer> arr2) {
