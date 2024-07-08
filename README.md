@@ -1,6 +1,6 @@
 # BooleanOperations
 
-The Boolean Operations application was created by me to optimize the work with boolean functions. At the moment, there is no such application on the Internet that provides the necessary tools for me to work with boolean functions
+The "Boolean Operations" console application was created by me to optimize work with logical functions. At the moment, there is no such application on the Internet that would provide me with the necessary tools to work with logical functions
 
 The application provides opportunities to work with functions written explicitly (example: (!X1 & X2) | X3), and also with functions written as a vector (example: 1000 0001).
 
